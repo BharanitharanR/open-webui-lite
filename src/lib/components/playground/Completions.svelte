@@ -44,7 +44,7 @@
 			localStorage.token,
 			{
 				model: model.id,
-				stream: true,
+				stream: false,
 				messages: [
 					{
 						role: 'assistant',

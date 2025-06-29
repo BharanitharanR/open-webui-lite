@@ -85,9 +85,9 @@
 	export let selectedToolIds = [];
 	export let selectedFilterIds = [];
 
-	export let imageGenerationEnabled = false;
+	export let imageGenerationEnabled = true;
 	export let webSearchEnabled = false;
-	export let codeInterpreterEnabled = false;
+	export let codeInterpreterEnabled = true;
 
 	$: onChange({
 		prompt,
@@ -166,17 +166,15 @@
 		$config?.features?.enable_web_search &&
 		($_user.role === 'admin' || $_user?.permissions?.features?.web_search);
 
-	let showImageGenerationButton = false;
+	let showImageGenerationButton = true;
 	$: showImageGenerationButton =
-		(atSelectedModel?.id ? [atSelectedModel.id] : selectedModels).length ===
-			imageGenerationCapableModels.length &&
 		$config?.features?.enable_image_generation &&
 		($_user.role === 'admin' || $_user?.permissions?.features?.image_generation);
+	
+	showImageGenerationButton = true;
 
 	let showCodeInterpreterButton = false;
 	$: showCodeInterpreterButton =
-		(atSelectedModel?.id ? [atSelectedModel.id] : selectedModels).length ===
-			codeInterpreterCapableModels.length &&
 		$config?.features?.enable_code_interpreter &&
 		($_user.role === 'admin' || $_user?.permissions?.features?.code_interpreter);
 
@@ -1315,24 +1313,21 @@
 													</Tooltip>
 												{/if}
 
-												{#if showImageGenerationButton}
-													<Tooltip content={$i18n.t('Generate an image')} placement="top">
-														<button
-															on:click|preventDefault={() =>
-																(imageGenerationEnabled = !imageGenerationEnabled)}
-															type="button"
-															class="px-2 @xl:px-2.5 py-2 flex gap-1.5 items-center text-sm rounded-full transition-colors duration-300 focus:outline-hidden max-w-full overflow-hidden hover:bg-gray-50 dark:hover:bg-gray-800 {imageGenerationEnabled
-																? ' text-sky-500 dark:text-sky-300 bg-sky-50 dark:bg-sky-200/5'
-																: 'bg-transparent text-gray-600 dark:text-gray-300 '}"
-														>
-															<Photo className="size-4" strokeWidth="1.75" />
-															<span
-																class="hidden @xl:block whitespace-nowrap overflow-hidden text-ellipsis leading-none pr-0.5"
-																>{$i18n.t('Image')}</span
-															>
-														</button>
-													</Tooltip>
-												{/if}
+												<Tooltip content={$i18n.t('Generate an image')} placement="top">
+												<button
+													on:click|preventDefault
+													type="button"
+													class="px-2 @xl:px-2.5 py-2 flex gap-1.5 items-center text-sm rounded-full transition-colors duration-300 focus:outline-hidden max-w-full overflow-hidden hover:bg-gray-50 dark:hover:bg-gray-800 text-sky-500 dark:text-sky-300 bg-sky-50 dark:bg-sky-200/5"
+												>
+													<Photo className="size-4" strokeWidth="1.75" />
+													<span
+													class="hidden @xl:block whitespace-nowrap overflow-hidden text-ellipsis leading-none pr-0.5"
+													>
+													{$i18n.t('Image')}
+													</span>
+												</button>
+												</Tooltip>
+
 
 												{#if showCodeInterpreterButton}
 													<Tooltip content={$i18n.t('Execute code for analysis')} placement="top">

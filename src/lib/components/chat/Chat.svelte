@@ -122,9 +122,9 @@
 
 	let selectedToolIds = [];
 	let selectedFilterIds = [];
-	let imageGenerationEnabled = false;
+	let imageGenerationEnabled = true;
 	let webSearchEnabled = false;
-	let codeInterpreterEnabled = false;
+	let codeInterpreterEnabled = true;
 
 	let chat = null;
 	let tags = [];
@@ -1582,7 +1582,7 @@
 			model?.info?.params?.stream_response ??
 			$settings?.params?.stream_response ??
 			params?.stream_response ??
-			true;
+			false;
 
 		let messages = [
 			params?.system || $settings.system

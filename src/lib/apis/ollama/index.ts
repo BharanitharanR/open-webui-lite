@@ -316,7 +316,7 @@ export const generateTextCompletion = async (token: string = '', model: string, 
 		body: JSON.stringify({
 			model: model,
 			prompt: text,
-			stream: true
+			stream: false
 		})
 	}).catch((err) => {
 		error = err;

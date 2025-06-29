@@ -49,6 +49,8 @@ For more information, be sure to check out our [Open WebUI Documentation](https:
 
 - 🎨 **Image Generation Integration**: Seamlessly incorporate image generation capabilities using options such as AUTOMATIC1111 API or ComfyUI (local), and OpenAI's DALL-E (external), enriching your chat experience with dynamic visual content.
 
+- 🤖 **Automatic1111 Auto-Detection**: Open WebUI automatically detects and configures Automatic1111 running on localhost:7086 or localhost:7860, enabling image generation without manual configuration. Simply start Automatic1111 with the `--api` flag and Open WebUI will automatically connect and enable image generation features.
+
 - ⚙️ **Many Models Conversations**: Effortlessly engage with various models simultaneously, harnessing their unique strengths for optimal responses. Enhance your experience by leveraging a diverse set of models in parallel.
 
 - 🔐 **Role-Based Access Control (RBAC)**: Ensure secure access with restricted permissions; only authorized individuals can access your Ollama, and exclusive model creation/pulling rights are reserved for administrators.
@@ -193,13 +195,55 @@ We offer various installation alternatives, including non-Docker native installa
 
 Look at the [Local Development Guide](https://docs.openwebui.com/getting-started/advanced-topics/development) for instructions on setting up a local development environment.
 
+### Setting Up Automatic1111 for Image Generation 🎨
+
+Open WebUI includes automatic detection for Automatic1111, making image generation setup effortless:
+
+#### Quick Setup
+
+1. **Install Automatic1111**:
+   ```bash
+   git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
+   cd stable-diffusion-webui
+   ```
+
+2. **Start with API enabled**:
+   ```bash
+   python webui.py --api --listen --port 7086
+   ```
+
+3. **Open WebUI will automatically detect and configure Automatic1111** when you start it!
+
+#### Docker Setup (Alternative)
+
+If you prefer Docker for Automatic1111:
+
+```bash
+docker run -d -p 7086:7860 ghcr.io/neggles/sd-webui-docker:latest
+```
+
+#### Testing Detection
+
+Run our test script to verify Automatic1111 is accessible:
+
+```bash
+python test-automatic1111-detection.py
+```
+
+#### Manual Configuration (Optional)
+
+If automatic detection doesn't work, you can manually configure Automatic1111 in Admin Settings → Images → Automatic1111 Base URL: `http://localhost:7086`
+
+> [!TIP]
+> Open WebUI automatically enables image generation when Automatic1111 is detected, so no manual configuration is needed!
+
 ### Troubleshooting
 
 Encountering connection issues? Our [Open WebUI Documentation](https://docs.openwebui.com/troubleshooting/) has got you covered. For further assistance and to join our vibrant community, visit the [Open WebUI Discord](https://discord.gg/5rJgQTnV4s).
 
 #### Open WebUI: Server Connection Error
 
-If you're experiencing connection issues, it’s often due to the WebUI docker container not being able to reach the Ollama server at 127.0.0.1:11434 (host.docker.internal:11434) inside the container . Use the `--network=host` flag in your docker command to resolve this. Note that the port changes from 3000 to 8080, resulting in the link: `http://localhost:8080`.
+If you're experiencing connection issues, it's often due to the WebUI docker container not being able to reach the Ollama server at 127.0.0.1:11434 (host.docker.internal:11434) inside the container . Use the `--network=host` flag in your docker command to resolve this. Note that the port changes from 3000 to 8080, resulting in the link: `http://localhost:8080`.
 
 **Example Docker Command**:
 

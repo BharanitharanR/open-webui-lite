@@ -288,7 +288,7 @@
 				{/if}
 
 				<div class=" py-1 flex w-full justify-between">
-					<div class=" self-center text-xs font-medium">{$i18n.t('Image Generation Engine')}</div>
+					<div class=" self-center text-xs font-medium">{$i18n.t('Image Generation Model Enabled ')}</div>
 					<div class="flex items-center relative">
 						<select
 							class=" dark:bg-gray-900 w-fit pr-8 cursor-pointer rounded-sm px-2 p-1 text-xs bg-transparent outline-hidden text-right"

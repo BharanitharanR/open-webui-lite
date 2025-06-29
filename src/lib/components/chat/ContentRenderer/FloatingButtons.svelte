@@ -66,7 +66,7 @@
 				role: message.role,
 				content: message.content
 			})),
-			stream: true // Enable streaming
+			stream: false // Disable streaming
 		});
 
 		if (res && res.ok) {
@@ -146,7 +146,7 @@
 				role: message.role,
 				content: message.content
 			})),
-			stream: true // Enable streaming
+			stream: false // Disable streaming
 		});
 
 		if (res && res.ok) {

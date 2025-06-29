@@ -965,7 +965,7 @@ export const generateMoACompletion = async (
 			model: model,
 			prompt: prompt,
 			responses: responses,
-			stream: true
+			stream: false
 		})
 	}).catch((err) => {
 		console.error(err);

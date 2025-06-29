@@ -4,15 +4,20 @@ import os
 import shutil
 import base64
 import redis
-
-from datetime import datetime
+import sys
+import asyncio
+import aiohttp
+from typing import Generic, Optional, TypeVar, Union, Any
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Generic, Optional, TypeVar
 from urllib.parse import urlparse
 
 import requests
 from pydantic import BaseModel
 from sqlalchemy import JSON, Column, DateTime, Integer, func
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
 
 from open_webui.env import (
     DATA_DIR,
@@ -1434,7 +1439,7 @@ FOLLOW_UP_GENERATION_PROMPT_TEMPLATE = PersistentConfig(
 DEFAULT_FOLLOW_UP_GENERATION_PROMPT_TEMPLATE = """### Task:
 Suggest 3-5 relevant follow-up questions or prompts that the user might naturally ask next in this conversation as a **user**, based on the chat history, to help continue or deepen the discussion.
 ### Guidelines:
-- Write all follow-up questions from the user’s point of view, directed to the assistant.
+- Write all follow-up questions from the user's point of view, directed to the assistant.
 - Make questions concise, clear, and directly related to the discussed topic(s).
 - Only suggest follow-ups that make sense given the chat content and do not repeat what was already covered.
 - If the conversation is very short or not specific, suggest more general (but relevant) follow-ups the user might ask.
@@ -2613,16 +2618,57 @@ EXTERNAL_WEB_LOADER_API_KEY = PersistentConfig(
 # Images
 ####################################
 
+def detect_automatic1111():
+    """
+    Automatically detect if Automatic1111 is running on localhost:7086
+    Returns the base URL if detected, otherwise returns empty string
+    """
+    try:
+        # Test the standard Automatic1111 API endpoint
+        response = requests.get("http://localhost:7086/sdapi/v1/options", timeout=5)
+        if response.status_code == 200:
+            return "http://localhost:7086"
+    except requests.exceptions.RequestException:
+        pass
+    
+    try:
+        # Also test the common port 7860
+        response = requests.get("http://localhost:7860/sdapi/v1/options", timeout=5)
+        if response.status_code == 200:
+            return "http://localhost:7860"
+    except requests.exceptions.RequestException:
+        pass
+    
+    return ""
+
+def get_default_image_engine():
+    """
+    Get the default image generation engine based on automatic detection
+    """
+    # Check if Automatic1111 is detected
+    if detect_automatic1111():
+        return "automatic1111"
+    return "openai"
+
+def should_enable_image_generation():
+    """
+    Determine if image generation should be enabled by default
+    """
+    # Enable if Automatic1111 is detected or explicitly set
+    if detect_automatic1111():
+        return True
+    return os.environ.get("ENABLE_IMAGE_GENERATION", "true").lower() == "true"
+
 IMAGE_GENERATION_ENGINE = PersistentConfig(
     "IMAGE_GENERATION_ENGINE",
     "image_generation.engine",
-    os.getenv("IMAGE_GENERATION_ENGINE", "openai"),
+    os.getenv("IMAGE_GENERATION_ENGINE", get_default_image_engine()),
 )
 
 ENABLE_IMAGE_GENERATION = PersistentConfig(
     "ENABLE_IMAGE_GENERATION",
     "image_generation.enable",
-    os.environ.get("ENABLE_IMAGE_GENERATION", "").lower() == "true",
+    should_enable_image_generation(),
 )
 
 ENABLE_IMAGE_PROMPT_GENERATION = PersistentConfig(
@@ -2634,7 +2680,7 @@ ENABLE_IMAGE_PROMPT_GENERATION = PersistentConfig(
 AUTOMATIC1111_BASE_URL = PersistentConfig(
     "AUTOMATIC1111_BASE_URL",
     "image_generation.automatic1111.base_url",
-    os.getenv("AUTOMATIC1111_BASE_URL", ""),
+    os.getenv("AUTOMATIC1111_BASE_URL", detect_automatic1111()),
 )
 AUTOMATIC1111_API_AUTH = PersistentConfig(
     "AUTOMATIC1111_API_AUTH",

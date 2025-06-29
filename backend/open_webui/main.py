@@ -505,6 +505,20 @@ async def lifespan(app: FastAPI):
     log.info("Installing external dependencies of functions and tools...")
     install_tool_and_function_dependencies()
 
+    # Auto-configure Automatic1111 if detected
+    log.info("Checking for Automatic1111...")
+    from open_webui.config import detect_automatic1111
+    automatic1111_url = detect_automatic1111()
+    if automatic1111_url:
+        log.info(f"Automatic1111 detected at {automatic1111_url}")
+        # Auto-configure the image generation settings
+        app.state.config.IMAGE_GENERATION_ENGINE = "automatic1111"
+        app.state.config.ENABLE_IMAGE_GENERATION = True
+        app.state.config.AUTOMATIC1111_BASE_URL = automatic1111_url
+        log.info("Automatic1111 auto-configured successfully")
+    else:
+        log.info("No Automatic1111 detected")
+
     app.state.redis = get_redis_connection(
         redis_url=REDIS_URL,
         redis_sentinels=get_sentinels_from_env(
